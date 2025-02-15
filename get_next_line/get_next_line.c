@@ -55,7 +55,7 @@ void	*ft_strcopy(char *dst, char *src)
 		i++;
 	}
 	dst[i] = '\0';
-  return ;
+  	return ;
 }
 
 char	*ft_strdup(char *str)
