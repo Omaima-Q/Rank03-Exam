@@ -97,7 +97,7 @@ int	ft_printf(const char *format, ...)
 // {
 // 	ft_printf("\n");
 // 	ft_printf("Hexadecimal for %d is %x\n", 42, 42);
-// 	ft_printf("Magic %s is %d", "number", -8000000);
+// 	ft_printf("Magic %s is %d\n", "number", -8000000);
 // 	ft_printf("%s\n", "toto");
 // 	return (0);
 // }
