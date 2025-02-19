@@ -22,97 +22,49 @@ Make sure that your function behaves well when it reads from a file, from the st
 No call to another function will be done on the file descriptor between 2 calls of get_next_line(). Finally we consider that get_next_line() has an undefined behaviour when reading from a binary file.*/
 
 
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "get_next_line.h"
-
-int	ft_strlen(char *str)
-{
-	int i = 0;
-
-	while (str[i])
-		i++;
-	return (i);
-}
-
-char	*ft_strchr(char c, char *str)
-{
-	while (*str)
-	{
-		if (*str == c)
-			return (str);
-		str++;
-	}
-	return (NULL);
-}
-
-void	*ft_strcopy(char *dst, char *src)
-{
-	int i = 0;
-
-	while (src[i])
-	{
-		dst[i] = src[i];
-		i++;
-	}
-	dst[i] = '\0';
-  	return ;
-}
-
-char	*ft_strdup(char *str)
-{
-	char *new;
-
-	new = malloc(sizeof(char) * ft_strlen(str) + 1);
-	if (new == NULL)
-		return (NULL);
-	ft_strcopy(new, str);
-	return (new);
-}
-
-char	*ft_strjoin(char *strOne, char *strTwo)
-{
-	char *new = malloc(sizeof(char) * (ft_strlen(strOne) + ft_strlen(strTwo)) + 1);
-
-	if (!strOne || !strTwo || !new)
-		return (NULL);
-	ft_strcopy(new, strOne);
-	ft_strcopy((new + ft_strlen(strOne)), strTwo);
-	free(strOne);
-	return (new);
-}
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 32
+#endif
 
 char *get_next_line(int fd)
 {
-	static char	buf[BUFFER_SIZE + 1];
-	char	*line;
-	char	*newline;
-	int		countread;
-	int		to_copy;
+    static char buffer[BUFFER_SIZE];
+    static int buffer_read = 0, buffer_pos = 0;
+    char *line;
+    int i = 0;
 
-	line = ft_strdup(buf);
-	while (!(newline = ft_strchr('\n', line))
-				&& (countread = read(fd, buf, BUFFER_SIZE)))
-	{
-		buf[countread] = '\0';
-		line = ft_strjoin(line, buf);
-	}
-	if (ft_strlen(line) == 0)
-	{
-		free(line);
-		return (NULL);
-	}
-	if (newline != NULL)
-	{
-		to_copy = newline - line + 1;
-		ft_strcopy(buf, newline + 1);
-	}
-	else
-	{
-		to_copy = ft_strlen(line);
-		buf[0] = '\0';
-	}
-	line[to_copy] = '\0';
-	return (line);
+    if (fd < 0 || BUFFER_SIZE <= 0)
+        return (NULL);
+	
+    line = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+    if (!line)
+        return (NULL);
+
+    while (1)
+    {
+        if (buffer_pos >= buffer_read)
+        {
+            buffer_read = read(fd, buffer, BUFFER_SIZE);
+            buffer_pos = 0;
+            if (buffer_read <= 0)
+                break;
+        }
+
+        line[i++] = buffer[buffer_pos++];
+
+        if (line[i - 1] == '\n')
+            break;
+    }
+    if (i == 0)
+    {
+        free(line);
+        return (NULL);
+    }
+    line[i] = '\0';
+    return (line);
 }
 
 // int main(int argc, char **argv)
